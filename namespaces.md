@@ -80,7 +80,7 @@ Explanation is coming soon, but here is the result:
   ( /* below object can build nested namespaces */
     {
       utils: {
-        sayHi: function () { return 'hi'; },
+        sayHowdy: function () { return 'HOWDY'; },
       }
     }
   )
@@ -92,8 +92,15 @@ Explanation is coming soon, but here is the result:
   */
 function Package(config) {   //  (this function gets passed as Factory arg above)
   return {
+    sayHi: function () { return 'hi'; },
   }
 }
 
-);      
+);
+
+function Func() {
+  var lib = pkg.library();
+  Logger.log(lib.sayHi());
+  Logger.log(pkg.library.utils.sayHowdy());
+}
 ```
