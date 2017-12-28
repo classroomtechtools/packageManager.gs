@@ -1,0 +1,19 @@
+{
+  "timeZone": "Asia/Hong_Kong",
+  "dependencies": {
+    "enabledAdvancedServices": [{
+      "userSymbol": "Drive",
+      "serviceId": "drive",
+      "version": "v2"
+    }]
+  },
+  "webapp": {
+    "access": "MYSELF",
+    "executeAs": "USER_DEPLOYING"
+  },
+  "exceptionLogging": "STACKDRIVER",
+  "oauthScopes": ["https://www.googleapis.com/auth/drive.scripts", "https://www.googleapis.com/auth/drive", "https://www.googleapis.com/auth/script.external_request"],
+  "executionApi": {
+    "access": "MYSELF"
+  }
+}
