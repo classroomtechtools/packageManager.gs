@@ -1,0 +1,53 @@
+//
+// Interface with the PackageManager (via Execution API) to pull/push to the cloud
+//
+
+/**
+  *  pm_push: Read current project files and push to gist as defined in dev.self
+  *           Refuses to proceed if any test is failing
+  */
+function pm_push ()  {
+  var result;
+  result = testRunner();
+  if (!result) throw Error("Tests have not passed so won't push. Inspect logs");
+  pushPull_('Push');
+}
+
+/**
+  *  pm_pull: 
+  */
+function pm_pull () {
+  pushPull_('Pull');
+}
+
+/**
+  *  Interfaces with the Package Manager to execute push or pull
+  *     It obtains the Package Manager's OAuth token via a GET request
+  *     Using that access token allows us to execute script on PM side via Execution API
+  *     - Designed this way because PM should be the script executing changes to project files
+  *       as it needs special scope to do so.
+  *     - Using a POST request to Package Manager to arrange for execution, while feasible, proved
+  *       harder to debug
+  */
+function pushPull_(which) {
+  var url, scriptId, projectId, payload, oauthToken;
+  projectManagerScriptId = '<?= data.scriptId ?>';
+
+  oauthToken = getPMOAuthToken_(); // required to use PM's, not this one (due to constraints with execution API)
+
+  // execution API
+  url = "https://script.googleapis.com/v1/scripts/" + projectManagerScriptId + ":run";
+  payload = JSON.stringify({"function": "remote"+which, "parameters": [ScriptApp.getScriptId(), "<?= data.prefix ?>"]});
+  var response = UrlFetchApp.fetch(url, {muteHttpExceptions: true, method:'post', payload:payload, headers: {'Authorization': 'Bearer ' + oauthToken, 'Content-Type': 'application/json'}});
+  Logger.log(response);
+  var responseJson = JSON.parse(response);
+  if (responseJson.error) throw Error("Execution on package manager side (in project ID " + projectManagerScriptId + ") failed. Inspect logs (at bottom) for details.");
+}
+
+function getPMOAuthToken_() {
+  DriveApp.getRootFolder();  // Unfortunately this is required to get the scope to work....
+  
+  var response, url, payload;
+  url = '<?= data.webAppUrl ?>';
+  return UrlFetchApp.fetch(url, {muteHttpExceptions: true, followRedirects: true, headers: {'Authorization': 'Bearer ' + ScriptApp.getOAuthToken()}});
+}
