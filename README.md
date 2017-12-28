@@ -41,18 +41,13 @@ Unittests:
 * The utgs library is automatically included into the target project (via a declaration in "setup.gs"!) 
 * Whenever you push, all unittests are automatically run with the testRunner, which prevents from introducing bugs. (If you need to override, this, you can do so by commenting out the call to the test runner!)
 
-## Explanation
-The idea is that Project Manager is a project which you make a copy of and bring into your domain. 
-You enter your github username/password into the "secrets" file which is used to authenticate to the github api. 
-When you want to write a new library, you run a toolchain command from the Project Manager that creates a blank project and creates a new gist. 
-It does this by using the github API to download the files and the Drive API to write a templated project.
-Then you write the library, include the unit tests, and from the target library project, run another toolchain command "push" which will then save that projects files to the gits.
-That works by connecting (via Execution API) to the original Project Manager project and asking it to update the target project.
-If you want to write an application or a library that has a dependency, you declare that in the special file setup.gs, and then in the toolchain on the target project execute a push and then a pull.
-This will update the gist with that declaration, and on the pull will download the new libraries and include them in the project.
-Again, that latter connection is established via the Execution API.
-
-In other words, to put it more simply, the "mother" script (Package Manager) creates "child" scripts (the target library/app) which knows how to call home in order to be updated on its own behalf. In addition, the child script is set up to have boilerplate code that allows us to do namespacing and use libraries. When we push and pull to and from github, we connect to the Package Manager which knows how to resolve dependencies and include them. As an added bonus, the utgs library allows us to test our code with assertions. As long as we stick to the conventions (which are established with the boilerplate software), we have a toolchain!
+## Verbose Explanation
+1. The idea is that Project Manager is a project which you make a copy of and bring into your domain. This "mother" project creates "child" scripts (the target library/app) which knows how to call home in order to be updated on its behalf. In addition, the child script is set up to have boilerplate code that allows us to do namespacing and import libraries. When we push and pull to and from the gists, we connect to the Package Manager which knows how to resolve dependencies and include them. As an added bonus, the utgs library allows us to test our code with assertions. As long as we stick to the conventions (which are established with the boilerplate software), we have a toolchain!
+2. Setup-wise, you have to enable Drive and App Script APIs, and enter your github username/password into the "secrets" file which is used to authenticate to the github api. You also need to deploy as a web service and deploy as executable. The former is needed because a get request is performed from the child script to obtain mother's OAuth token, and the latter is needed to make the Execution API work. The mother's OAuth token is needed, rather than the child's, in order for commands on the mother to be launched.
+3. When you want to write a new library, you run a toolchain command (initLibrary) from the Project Manager that creates a blank project and creates a new gist. When you want to write an application (i.e. a project that is not intended to be reused but uses other libraries), you use a different toolchain command (initApplication). 
+4. Namespaces are important, because that is the crux on which all this works. Every library attaches itself to the pkg namespace. For applications, you can optionally use the app namespace. These namespaces are entirely done by convention, not enforced by Package Manager, although the boilerplate code it produces helps loose "enforcement."
+5. When you want to declare a dependency, you edit the setup file to include the correct namespace that will be accessible via pkg.namespace, and the corresponding gist ID. Then you push the project, which calls home and updates the gist. Then you pull, which calls home and updates the project according to the new setup file information.
+6. Naming scheme for files is important, because that is also the crux on which all this works. Files have to have names that clearly denote where they came from, so that Package Manager only uploads to the gist the ones that are associated to that project.
 
 ## Why gists and not full-fledged repos?
 The two major differences between a gist and a regular github repo is that the former cannot be forked, and you can't do pull requests.
