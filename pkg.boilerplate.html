@@ -1,0 +1,25 @@
+/** 
+  * Top 15 lines are essential for execution -- mod with care ;)
+  */
+(function (global, Factory) {  
+global.<?= data.prefixNoDot ?> = global.<?= data.prefixNoDot ?> || {};
+global.<?= data.prefix + data.namespace ?> = (function wrapper (args) { 
+      var wrapped = function () { return Factory.apply(Factory, arguments); } 
+      for (i in args) { wrapped[i] = args[i]; }
+      return wrapped;
+  }  // end of wrapper
+  ( /* below object can build nested namespaces */
+    {}
+  )
+  );  // end global.<?= data.prefix + data.namespace ?> self-invoking function
+})(this,    // execute top function
+
+/**
+  *  This is your main package code; returns object which app will use for operations
+  */
+function Package(config) {   //  (this function gets passed as Factory arg above)
+  return {
+  }
+}
+
+);          // end execution
