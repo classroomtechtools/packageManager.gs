@@ -1,0 +1,16 @@
+/**
+  *  Goes through every function that starts with "test_" and excutes it
+  *  @returns true if all tests passed, false otherwise
+  */
+function testRunner() {
+  var finalResult = true, result;
+  
+  for (var name in this) {
+    if (name.indexOf('testing_') == 0) {
+      result = this[name](/* should not take any arguments */);
+      if (!result) finalResult = false;
+    }
+  }
+  
+  return finalResult;
+}
