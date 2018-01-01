@@ -368,8 +368,11 @@
           if (obj.name.indexOf(endsWith) == obj.name.length - endsWith.length)
             return null;  // gets skipped
         }
-        if ((obj.name.indexOf('.unittests') == (obj.name.length - '.unittests'.length)) && item.dev) {
-          return null;  // excludes unittests files of imported packages, but keeps the ones that are included for the target library
+        if ((obj.name.indexOf('.unittests') != -1) && item.dev) {
+          // excludes unittests files of imported packages, but keeps the ones that are included for the target library
+          // pattern it looks for is "contains .unittests" in the filename that way developer can have multiple test files
+          // the item.dev is needed to distinguish between unittests as a part of the target project and those imported
+          return null;
         }
         return obj;
       },
